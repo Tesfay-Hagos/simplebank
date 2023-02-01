@@ -1,4 +1,4 @@
-# assignment_01
+# Assignment
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.com/2ftimeplc/2f-interns/assignment_01.git
+git remote add origin https://gitlab.com/shambelamare2006/assignment.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.com/2ftimeplc/2f-interns/assignment_01/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitlab.com/shambelamare2006/assignment/-/settings/integrations)
 
 ## Collaborate with your team
 

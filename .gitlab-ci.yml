@@ -1,0 +1,164 @@
+image: golang:1.19
+
+variables:
+  TAG: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:$CI_PIPELINE_ID
+
+.go-cache:
+  variables:
+    GOPATH: $CI_PROJECT_DIR/.go
+  before_script:
+    - mkdir -p .go
+  cache:
+    paths:
+      - .go/pkg/mod/
+
+stages:
+  # - lint
+  - test
+  # - setup
+  # - publish
+  # - deploy
+# proper-code:
+#   extends: .go-cache
+#   stage: lint
+#   image: golangci/golangci-lint:v1.50
+#   tags:
+#     - rp2
+#   before_script:
+#     - apt update && apt install openssh-client
+#     - eval $(ssh-agent -s)
+#     - mkdir -p ~/.ssh
+#     - echo "$SSH_ACCESS_KEY" | tr -d '\r' | ssh-add -
+#     - chmod 700 ~/.ssh
+#     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+#     - chmod 644 ~/.ssh/known_hosts
+#     - go env -w GOPRIVATE="gitlab.com/2ftimeplc/*"
+#     - printf "machine gitlab.com\nlogin 2ftimesgitlab@gmail.com\npassword $ACCESS_TOKEN" > ~/.netrc
+#     - printf '[user]\n\temail = 2ftimesgitlab@gmail.com\n\tname = Two F Times Trading PLC\n\n[url "ssh://git@gitlab.com/"]\n\tinsteadOf = https://gitlab.com/' > ~/.gitconfig
+#   script:
+#     - golangci-lint run ./...
+#   except:
+#     - staging
+#     - pre-production
+#     - production
+#   artifacts:
+#     when: always
+#     reports:
+#       junit: lint_report.xml
+
+test:
+  extends: .go-cache
+  stage: test
+  services:
+    - redis:latest
+    - name: cockroachdb/cockroach:latest
+      alias: db
+      command: ["start-single-node", "--insecure"]
+    - name: bitnami/zookeeper:3.6.3
+      alias: zookeeper
+    - name: bitnami/kafka:3.1.1
+      alias: kafka
+  variables:
+    FF_NETWORK_PER_BUILD: 1
+    KAFKA_BROKER_ID: 1
+    KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092"
+    KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+    KAFKA_CFG_ZOOKEEPER_CONNECT: "zookeeper:2181"
+    ALLOW_PLAINTEXT_LISTENER: "yes"
+    ALLOW_ANONYMOUS_LOGIN: "yes"
+    KAFKA_CREATE_TOPICS: "example-topic"
+  tags:
+    - rp2
+  before_script:
+    - apt update && apt install openssh-client
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - echo "$SSH_ACCESS_KEY" | tr -d '\r' | ssh-add -
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - go env -w GOPRIVATE="gitlab.com/2ftimeplc/*"
+    - printf "machine gitlab.com\nlogin 2ftimesgitlab@gmail.com\npassword $ACCESS_TOKEN" > ~/.netrc
+    - printf '[user]\n\temail = 2ftimesgitlab@gmail.com\n\tname = Two F Times Trading PLC\n\n[url "ssh://git@gitlab.com/"]\n\tinsteadOf = https://gitlab.com/' > ~/.gitconfig
+  script:
+    - go test ./... -p=$TEST_MAX_CONCURRENCY -count=1
+  except:
+    - pre-production
+    - production
+# install_dependencies:
+#   stage: setup
+#   image: golang:1.19.3-alpine3.16
+#   tags:
+#     - rp2
+#   before_script:
+#     - mkdir -p .go
+#     - apk update && apk add openssh-client
+#     - apk add git
+#     - eval $(ssh-agent -s)
+#     - mkdir -p ~/.ssh
+#     - echo "$SSH_ACCESS_KEY" | tr -d '\r' | ssh-add -
+#     - chmod 700 ~/.ssh
+#     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+#     - chmod 644 ~/.ssh/known_hosts
+#     - go env -w GOPRIVATE="gitlab.com/2ftimeplc/*"
+#     - printf "machine gitlab.com\nlogin 2ftimesgitlab@gmail.com\npassword $ACCESS_TOKEN" > ~/.netrc
+#     - printf '[user]\n\temail = 2ftimesgitlab@gmail.com\n\tname = Two F Times Trading PLC\n\n[url "ssh://git@gitlab.com/"]\n\tinsteadOf = https://gitlab.com/' > ~/.gitconfig
+#   script:
+#     - go mod vendor
+#   cache:
+#     key: $CI_PROJECT_DIR
+#     paths:
+#       - vendor/
+#     policy: push
+#   only:
+#     changes:
+#       - go.mod
+#       - go.sum
+#     refs:
+#       - staging
+#       - pre-production
+#       - production
+
+# publish:
+#   image: docker:latest
+#   stage: publish
+#   cache:
+#     key: $CI_PROJECT_DIR
+#     paths:
+#       - vendor/
+#     policy: pull
+#   tags:
+#     - rp2
+#   services:
+#     - docker:dind
+#   script:
+#     - docker build -t $TAG .
+#     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+#     - docker push $TAG
+#     - docker rmi -f $(docker images --filter "dangling=true" -q --no-trunc) || clean_up_status=$?
+#   only:
+#     refs:
+#       - staging
+#       - pre-production
+#       - production
+
+# deploy-for-staging:
+#   image: alpine:latest
+#   stage: deploy
+#   tags:
+#     - rp2
+#   before_script:
+#     - apk update && apk add openssh-client
+#     - eval $(ssh-agent -s)
+#     - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+#     - mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - ssh-keyscan $SERVERIP_STAGING >> ~/.ssh/known_hosts
+#     - chmod 644 ~/.ssh/known_hosts
+#   script:
+#     - ssh $SERVERUSER_STAGING@$SERVERIP_STAGING "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
+#     - ssh $SERVERUSER_STAGING@$SERVERIP_STAGING "docker pull $TAG"
+#     - ssh $SERVERUSER_STAGING@$SERVERIP_STAGING "docker service update --image $TAG --force rp2_rp2"
+#   only:
+#     refs:
+#       - staging
