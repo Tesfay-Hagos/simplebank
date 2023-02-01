@@ -1,4 +1,4 @@
-# Assignment
+# tesfay prep
 
 
 
@@ -15,14 +15,22 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
+<<<<<<< HEAD
 git remote add origin https://gitlab.com/shambelamare2006/assignment.git
+=======
+git remote add origin https://gitlab.com/2ftimeplc/2f-interns/tesfay-prep.git
+>>>>>>> origin/main
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
+<<<<<<< HEAD
 - [ ] [Set up project integrations](https://gitlab.com/shambelamare2006/assignment/-/settings/integrations)
+=======
+- [ ] [Set up project integrations](https://gitlab.com/2ftimeplc/2f-interns/tesfay-prep/-/settings/integrations)
+>>>>>>> origin/main
 
 ## Collaborate with your team
 
