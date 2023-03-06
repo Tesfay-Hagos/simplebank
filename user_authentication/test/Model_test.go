@@ -14,7 +14,7 @@ import (
 func TestUserregisterandlogin(t *testing.T) {
 	server := controller.Newserver()
 	t.Run("Test Registering users", func(t *testing.T) {
-		Newuser := model.UserInfo{Username: "Bnet", Password: "Berut2121", Email: "bnetthagos@gmail.com", CreatedAt: time.Now()}
+		Newuser := model.UserInfo{Username: "Tsadkan", Password: "tsadkaney2121", Email: "tsadkan2121@gmail.com", CreatedAt: time.Now()}
 		//create request and response writer
 		buff := convtobuff(Newuser)
 		req := httptest.NewRequest(http.MethodPost, "/register", &buff)
@@ -29,7 +29,7 @@ func TestUserregisterandlogin(t *testing.T) {
 		}
 	})
 	t.Run("Test login user and generate token", func(t *testing.T) {
-		Newuser := model.UserInfo{Password: "Berut2121", Email: "bemnetthagos@gmail.com"}
+		Newuser := model.UserInfo{Password: "tsadkaney2121", Email: "tsadkan2121@gmail.com"}
 		buff := convtobuff(Newuser)
 		req := httptest.NewRequest(http.MethodPost, "/login", &buff)
 		resp := httptest.NewRecorder()
@@ -37,6 +37,28 @@ func TestUserregisterandlogin(t *testing.T) {
 		if resp.Body.String() == "" {
 			t.Errorf("Test Failed")
 		}
+
+	})
+	t.Run("Change Password", func(t *testing.T) {
+		/*
+			userlogin := model.UserInfo{Password: "tsadkaney2121", Email: "tsadkan2121@gmail.com"}
+			buff := convtobuff(userlogin)
+			r := httptest.NewRequest(http.MethodPost, "/login", &buff)
+			p := httptest.NewRecorder()
+			server.Handler.ServeHTTP(p, r)
+			token := p.Body.String()
+		*/
+
+		Newuser := model.UserInfo{Password: "1234567890", Email: "tsadkan2121@gmail.com"}
+		buffchange := convtobuff(Newuser)
+		req := httptest.NewRequest(http.MethodPut, "/changepassword", &buffchange)
+		//req.Header.Add("token", token)
+		resp := httptest.NewRecorder()
+		server.Handler.ServeHTTP(resp, req)
+		want := "userpassword updated"
+		got := resp.Body.String()
+		assertupdate(t, got, want)
+
 	})
 
 }
@@ -48,4 +70,9 @@ func convtobuff(user model.UserInfo) bytes.Buffer {
 	buff := bytes.NewBuffer(body)
 	return *buff
 
+}
+func assertupdate(t testing.TB, got, want string) {
+	if got != want {
+		t.Errorf("got:%s,want:%s", got, want)
+	}
 }
