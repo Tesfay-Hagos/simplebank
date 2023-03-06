@@ -20,8 +20,27 @@ func LoginMiddleware(next http.Handler) http.Handler {
 
 func ChangePasswordHandlermiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err := ValidateToken(w, r)
+		err, tokenfound := ValidateToken(w, r)
 		model.CheckErr(err)
+		if tokenfound {
+			next.ServeHTTP(w, r)
+
+		}
+
+	})
+}
+func GetAllUSerHandlermiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err, tokenfound := ValidateToken(w, r)
+		model.CheckErr(err)
+		if tokenfound {
+			next.ServeHTTP(w, r)
+
+		}
+	})
+}
+func ResetpasswordMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 	})
 }

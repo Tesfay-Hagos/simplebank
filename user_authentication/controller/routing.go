@@ -12,7 +12,8 @@ func Newserver() *Server {
 	router.HandleFunc("/register", RegisterHandler)
 	router.Handle("/login", LoginMiddleware(http.HandlerFunc(LoginHandler)))
 	router.Handle("/changepassword", ChangePasswordHandlermiddleware(http.HandlerFunc(ChangePasswordHandler)))
-	router.HandleFunc("/getalluser", GetAllUserHandler)
+	router.Handle("/passwordresetrequest", ResetpasswordMiddleware(http.HandlerFunc(Resetpassword)))
+	router.Handle("/getalluser", GetAllUSerHandlermiddleware(http.HandlerFunc(GetAllUserHandler)))
 	serv.Handler = router
 	return serv
 }

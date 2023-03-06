@@ -48,15 +48,32 @@ func ChangePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(message)
 }
 func GetAllUserHandler(w http.ResponseWriter, r *http.Request) {
-	err := ValidateToken(w, r)
-
 	user := model.UserInfo{}
-	err = json.NewDecoder(r.Body).Decode(&user)
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err == nil {
 		w.Header().Set("Content-Type", "application/json")
 		users := model.GetAllUser()
 		json.NewEncoder(w).Encode(users)
 	}
+}
+func Resetpassword(w http.ResponseWriter, r *http.Request) {
+	user := model.UserInfo{}
+	err := json.NewDecoder(r.Body).Decode(&user)
+	model.CheckErr(err)
+	if user.Email == "" || user.Username == "" {
+		fmt.Fprintf(w, "Please insert both Email and username to reset password")
+	}
+	userdb, isfound := model.GetUser(user.Email)
+	if isfound && userdb.Username == user.Username && userdb.Email == user.Email {
+		secritcode, errjw := GenerateJWT(userdb.Username)
+		if errjw != nil {
+			fmt.Fprintf(w, "error in generating token")
+		}
+		json.NewEncoder(w).Encode(secritcode)
+
+	}
+
+	//todo
 }
 func hashpassword(pw []byte) []byte {
 	result, err := bcrypt.GenerateFromPassword(pw, bcrypt.DefaultCost)

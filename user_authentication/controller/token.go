@@ -28,10 +28,11 @@ func GenerateJWT(username string) (string, error) {
 	return tokenString, nil
 }
 
-func ValidateToken(w http.ResponseWriter, r *http.Request) (err error) {
-
+func ValidateToken(w http.ResponseWriter, r *http.Request) (err error, b bool) {
+	b = true
 	if r.Header["Token"] == nil {
 		fmt.Fprintf(w, "can not find token in header")
+		b = false
 		return
 	}
 
@@ -48,14 +49,14 @@ func ValidateToken(w http.ResponseWriter, r *http.Request) (err error) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
 		fmt.Fprintf(w, "couldn't parse claims")
-		return errors.New("Token error")
+		return errors.New("Token error"), b
 	}
 
 	exp := claims["exp"].(float64)
 	if int64(exp) < time.Now().Local().Unix() {
 		fmt.Fprintf(w, "token expired")
-		return errors.New("Token error")
+		return errors.New("Token error"), b
 	}
 
-	return nil
+	return nil, b
 }

@@ -40,15 +40,6 @@ func TestUserregisterandlogin(t *testing.T) {
 
 	})
 	t.Run("Change Password", func(t *testing.T) {
-		/*
-			userlogin := model.UserInfo{Password: "tsadkaney2121", Email: "tsadkan2121@gmail.com"}
-			buff := convtobuff(userlogin)
-			r := httptest.NewRequest(http.MethodPost, "/login", &buff)
-			p := httptest.NewRecorder()
-			server.Handler.ServeHTTP(p, r)
-			token := p.Body.String()
-		*/
-
 		Newuser := model.UserInfo{Password: "1234567890", Email: "tsadkan2121@gmail.com"}
 		buffchange := convtobuff(Newuser)
 		req := httptest.NewRequest(http.MethodPut, "/changepassword", &buffchange)
