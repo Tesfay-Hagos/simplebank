@@ -34,12 +34,10 @@ func Register(user UserInfo) JsonResponse {
 	return response
 
 }
-func GetUser(email string) (JsonResponse, bool) {
+func GetUser(email string) (UserInfo, bool) {
 	//needs to be replaces using Database
 	db := setupDB()
 	printMessage("Getting Users...")
-	response := JsonResponse{}
-	usersdata := []UserInfo{}
 	// Get all movies from movies table that don't have movieID = "1"
 	rows, err := db.Query("SELECT * FROM registeredusers")
 	// check errors
@@ -51,13 +49,10 @@ func GetUser(email string) (JsonResponse, bool) {
 		err = rows.Scan(&id, &user.Username, &user.Password, &user.Email, &user.CreatedAt)
 		if email == user.Email {
 			checkErr(err)
-			usersdata = append(usersdata, user)
-			response = JsonResponse{Type: "success", Data: usersdata}
-			return response, false
+			return user, true
 		}
-		response = JsonResponse{Type: "success", Data: []UserInfo{}}
 	}
-	return response, true
+	return UserInfo{}, false
 }
 func GetAllUser() JsonResponse {
 	//needs to be replaces using Database
