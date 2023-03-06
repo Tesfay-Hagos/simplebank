@@ -7,6 +7,5 @@ import (
 
 func main() {
 	server := controller.Newserver()
-
 	http.ListenAndServe(":8080", server.Handler)
 }
