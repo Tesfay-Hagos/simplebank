@@ -62,6 +62,20 @@ func TestUserregisterandlogin(t *testing.T) {
 	})
 
 }
+
+func TestPasswordReset(t *testing.T) {
+	server := controller.Newserver()
+	Newuser := model.UserInfo{Password: "sham123wed", Email: "shamthagos@gmail.com"}
+	buff := convtobuff(Newuser)
+	req := httptest.NewRequest(http.MethodPost, "/passwordresetrequest", &buff)
+	resp := httptest.NewRecorder()
+	server.Handler.ServeHTTP(resp, req)
+	if resp.Body.String() == "" {
+		t.Errorf("Test Failed")
+	}
+
+}
+
 func convtobuff(user model.UserInfo) bytes.Buffer {
 	body, err := json.Marshal(user)
 	if err != nil {
