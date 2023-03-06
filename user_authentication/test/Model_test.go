@@ -26,6 +26,19 @@ func TestRegiste(t *testing.T) {
 	}
 
 }
+func TestLogin(t *testing.T) {
+	Newuser := model.UserInfo{Password: "Berut2121", Email: "bemnetthagos@gmail.com"}
+	buff := convtobuff(Newuser)
+	router := http.NewServeMux()
+	router.HandleFunc("/login", controller.RegisterHandler)
+	req := httptest.NewRequest(http.MethodPost, "/login", &buff)
+	resp := httptest.NewRecorder()
+	router.ServeHTTP(resp, req)
+	if resp.Body.String() == "" {
+		t.Errorf("Test Failed")
+	}
+
+}
 func convtobuff(user model.UserInfo) bytes.Buffer {
 	body, err := json.Marshal(user)
 	if err != nil {
