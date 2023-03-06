@@ -1,8 +1,8 @@
 package assignment01_test
 
 import (
-	groupcompanies "assignment/assignment_01/groupCompanies"
 	"fmt"
+	groupcompanies "tesfayprep/assignment_01/groupCompanies"
 	"testing"
 	"time"
 )

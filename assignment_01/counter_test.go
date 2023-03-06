@@ -1,11 +1,11 @@
 package assignment01_test
 
 import (
-	"assignment/assignment_01/count"
 	"bytes"
 	"fmt"
 	"log"
 	"os"
+	"tesfayprep/assignment_01/count"
 	"testing"
 
 	"golang.org/x/net/html"

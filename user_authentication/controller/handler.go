@@ -15,20 +15,18 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "POST":
-		user := model.UserInfo{}
-		err := json.NewDecoder(r.Body).Decode(&user)
-		if err != nil {
-			fmt.Fprintf(w, "invalid body")
+	user := model.UserInfo{}
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		fmt.Fprintf(w, "invalid body")
+		return
+	}
+	dbuser, isuser := model.GetUser(user.Email)
+	if isuser {
+		if dbuser.Password == "" || dbuser.Password != user.Password {
+			fmt.Fprintf(w, "can not authenticate this user")
 			return
-		}
-		dbuser, isnotuser := model.GetUser(user.Email)
-		if !isnotuser {
-			if dbuser.Data[0].Password == "" || dbuser.Data[0].Password != user.Password {
-				fmt.Fprintf(w, "can not authenticate this user")
-				return
-			}
+		} else {
 			token, err := tokenfunc.GenerateJWT(user.Username)
 			if err != nil {
 				fmt.Fprintf(w, "error in generating token")
@@ -36,10 +34,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 			fmt.Fprintf(w, token)
 		}
-
-	case "GET":
-		fmt.Fprintf(w, "only POST methods is allowed.")
-		return
 	}
 }
 func GetAllUserHandler(w http.ResponseWriter, r *http.Request) {

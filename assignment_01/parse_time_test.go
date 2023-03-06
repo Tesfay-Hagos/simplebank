@@ -1,7 +1,7 @@
 package assignment01_test
 
 import (
-	parsetime "assignment/assignment_01/parse_time"
+	parsetime "tesfayprep/assignment_01/parse_time"
 	"testing"
 	"time"
 )
