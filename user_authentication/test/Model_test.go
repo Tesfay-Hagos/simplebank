@@ -30,7 +30,7 @@ func TestLogin(t *testing.T) {
 	Newuser := model.UserInfo{Password: "Berut2121", Email: "bemnetthagos@gmail.com"}
 	buff := convtobuff(Newuser)
 	router := http.NewServeMux()
-	router.HandleFunc("/login", controller.RegisterHandler)
+	router.Handle("/login", controller.LoginMiddleware(http.HandlerFunc(controller.LoginHandler)))
 	req := httptest.NewRequest(http.MethodPost, "/login", &buff)
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
