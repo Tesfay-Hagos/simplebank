@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -23,5 +24,14 @@ func TestRegiste(t *testing.T) {
 	if response.Type != "success" {
 		t.Errorf("Test Failed")
 	}
+
+}
+func convtobuff(user model.UserInfo) bytes.Buffer {
+	body, err := json.Marshal(user)
+	if err != nil {
+		panic(err)
+	}
+	buff := bytes.NewBuffer(body)
+	return *buff
 
 }
