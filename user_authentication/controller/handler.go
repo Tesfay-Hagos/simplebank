@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"tesfayprep/user_authentication/model"
-	"tesfayprep/user_authentication/tokenfunc"
 )
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +26,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "can not authenticate this user")
 			return
 		} else {
-			token, err := tokenfunc.GenerateJWT(user.Username)
+			token, err := GenerateJWT(user.Username)
 			if err != nil {
 				fmt.Fprintf(w, "error in generating token")
 			}
@@ -37,7 +36,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func GetAllUserHandler(w http.ResponseWriter, r *http.Request) {
-	err := tokenfunc.ValidateToken(w, r)
+	err := ValidateToken(w, r)
 	if err == nil {
 		w.Header().Set("Content-Type", "application/json")
 		users := model.GetAllUser()

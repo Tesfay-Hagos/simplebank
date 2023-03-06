@@ -1,4 +1,4 @@
-package tokenfunc
+package controller
 
 import (
 	"errors"
