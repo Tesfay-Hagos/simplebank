@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -75,6 +76,48 @@ func GetAllUser() JsonResponse {
 	CheckErr(err)
 	response = JsonResponse{Type: "success", Data: users}
 	return response
+}
+func Inserttoken(t Resetpassworddb) TokenResponsejson {
+	response := TokenResponsejson{}
+	if t.Token == "" || t.UserID == "" || t.TokenExpiry == 0 {
+		response = TokenResponsejson{Type: "error", Mesage: "You are missing non null parameters of the user."}
+	} else {
+		db := setupDB()
+		PrintMessage("Registering Resetpassword")
+		//var lastInsertID int
+		_, err := db.Exec("INSERT INTO password_reset_tokens(user_id,token,token_expiry) VALUES($1,$2,$3);", t.UserID, hashpassword([]byte(t.Token)), t.TokenExpiry)
+		// check errors
+		CheckErr(err)
+		response = TokenResponsejson{Type: "success", Mesage: fmt.Sprintf("The  token has been send successfully to your email addrest:%s !", t.UserID), Token: t.Token}
+
+	}
+	return response
+}
+func ReadResetTokens(Email string) []Resetpassworddb {
+	db := setupDB()
+	PrintMessage("Getting Tokens...")
+	tokens := []Resetpassworddb{}
+	// Get all users from users table that don't have userID = "1"
+	rows, err := db.Query("SELECT * FROM password_reset_tokens where user_id=$1", Email)
+	// check errors
+
+	CheckErr(err)
+	// Foreach user
+	for rows.Next() {
+		user := Resetpassworddb{}
+		//var id int
+		err = rows.Scan(&user.UserID, &user.Token, &user.TokenExpiry)
+		cond := user.TokenExpiry < time.Now().Unix()
+		if cond {
+			_, err := db.Exec("DELETE FROM password_reset_tokens where token_expiry=$1", user.TokenExpiry)
+			CheckErr(err)
+			continue
+		}
+		tokens = append(tokens, user)
+		CheckErr(err)
+	}
+	CheckErr(err)
+	return tokens
 }
 func hashpassword(pw []byte) []byte {
 	result, err := bcrypt.GenerateFromPassword(pw, bcrypt.DefaultCost)
