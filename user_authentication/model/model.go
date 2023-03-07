@@ -22,11 +22,6 @@ type UserInfo struct {
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 }
-type Resetpassworddb struct {
-	UserID      string
-	Token       string
-	TokenExpiry int64
-}
 type ResetPasswordform struct {
 	Email              string
 	Token              string
@@ -38,7 +33,7 @@ type TokenResponsejson struct {
 	Mesage string
 	Token  string
 }
-type RestPassword struct {
+type ResetPassword struct {
 	Email string
 }
 

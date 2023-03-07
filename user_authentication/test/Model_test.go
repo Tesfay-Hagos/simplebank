@@ -34,8 +34,17 @@ func TestUserregisterandlogin(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/login", &buff)
 		resp := httptest.NewRecorder()
 		server.Handler.ServeHTTP(resp, req)
-		if resp.Body.String() == "" {
-			t.Errorf("Test Failed")
+		if resp.Result().StatusCode != 200 {
+			t.Errorf("Test Failed wit statuscode:%d", resp.Result().StatusCode)
+		}
+
+		Newuserr := model.ResetPasswordform{Token: resp.Body.String()}
+		buffr := convtobuff(Newuserr)
+		reqr := httptest.NewRequest(http.MethodPost, "/getalluser", &buffr)
+		respr := httptest.NewRecorder()
+		server.Handler.ServeHTTP(respr, reqr)
+		if respr.Result().StatusCode != 200 {
+			t.Errorf("Test Failed with statuscode:%d", respr.Result().StatusCode)
 		}
 
 	})
@@ -53,10 +62,32 @@ func TestUserregisterandlogin(t *testing.T) {
 	})
 
 }
+func TestLoginandGet(t *testing.T) {
+	server := controller.Newserver()
+	t.Run("Test login user and generate token", func(t *testing.T) {
+		Newuser := model.UserInfo{Password: "tsadkaney2121", Email: "tsadkan2121@gmail.com"}
+		buff := convtobuff(Newuser)
+		req := httptest.NewRequest(http.MethodPost, "/login", &buff)
+		resp := httptest.NewRecorder()
+		server.Handler.ServeHTTP(resp, req)
+		if resp.Result().StatusCode != 200 {
+			t.Errorf("Test Failed wit statuscode:%d", resp.Result().StatusCode)
+		}
 
+		Newuserr := model.ResetPasswordform{Token: resp.Body.String()}
+		buffr := convtobuff(Newuserr)
+		reqr := httptest.NewRequest(http.MethodPost, "/getalluser", &buffr)
+		respr := httptest.NewRecorder()
+		server.Handler.ServeHTTP(respr, reqr)
+		if respr.Result().StatusCode != 200 {
+			t.Errorf("Test Failed with statuscode:%d", respr.Result().StatusCode)
+		}
+
+	})
+}
 func TestPasswordReset(t *testing.T) {
 	server := controller.Newserver()
-	Newuser := model.RestPassword{Email: "shamthagos@gmail.com"}
+	Newuser := model.ResetPassword{Email: "shamthagos@gmail.com"}
 	buff := convtobuff(Newuser)
 	req := httptest.NewRequest(http.MethodPost, "/passwordresetrequest", &buff)
 	resp := httptest.NewRecorder()

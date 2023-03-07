@@ -5,17 +5,20 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/hgfischer/go-otp"
 	"golang.org/x/crypto/bcrypt"
 )
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+var letterBytes = "0123456789"
 
-var sampleSecretKey = []byte("GoLinuxCloudKey")
+//var sampleSecretKey = []byte(os.Getenv("sampleSecretKey"))
 
 func GenerateJWT(username string) (string, error) {
+	var sampleSecretKey = []byte(os.Getenv("sampleSecretKey"))
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 
@@ -33,13 +36,13 @@ func GenerateJWT(username string) (string, error) {
 }
 
 func ValidateToken(w http.ResponseWriter, r *http.Request) (err error, b bool) {
+	var sampleSecretKey = []byte(os.Getenv("sampleSecretKey"))
 	b = true
 	if r.Header["Token"] == nil {
 		fmt.Fprintf(w, "can not find token in header")
 		b = false
 		return
 	}
-
 	token, _ := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("there was an error in parsing")
@@ -68,6 +71,7 @@ func ValidateToken(w http.ResponseWriter, r *http.Request) (err error, b bool) {
 	return nil, b
 }
 func GenerateResetToken(n int) string {
+	//var letterBytes = []byte(os.Getenv("letterBytes"))
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
@@ -76,4 +80,10 @@ func GenerateResetToken(n int) string {
 }
 func ValidateResetToken(tokendb string, token string) error {
 	return bcrypt.CompareHashAndPassword([]byte(tokendb), []byte(token))
+}
+
+func OtpGenerator() *otp.TOTP {
+	secrete := os.Getenv("sampleSecretKey")
+	totp := otp.TOTP{Secret: secrete, Length: 6, IsBase32Secret: true}
+	return &totp
 }

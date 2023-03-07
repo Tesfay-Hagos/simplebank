@@ -32,10 +32,16 @@ func ChangePasswordHandlermiddleware(next http.Handler) http.Handler {
 func GetAllUSerHandlermiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err, tokenfound := ValidateToken(w, r)
+		if err != nil {
+			fmt.Fprintf(w, "Token invalid")
+		}
 		model.CheckErr(err)
 		if tokenfound {
 			next.ServeHTTP(w, r)
 
+		} else {
+			fmt.Fprintf(w, "Token is nil")
+			w.WriteHeader(http.StatusBadRequest)
 		}
 	})
 }
