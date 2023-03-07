@@ -56,18 +56,31 @@ func TestUserregisterandlogin(t *testing.T) {
 
 func TestPasswordReset(t *testing.T) {
 	server := controller.Newserver()
-	Newuser := model.UserInfo{Password: "sham123wed", Email: "shamthagos@gmail.com"}
+	Newuser := model.RestPassword{Email: "shamthagos@gmail.com"}
 	buff := convtobuff(Newuser)
 	req := httptest.NewRequest(http.MethodPost, "/passwordresetrequest", &buff)
 	resp := httptest.NewRecorder()
 	server.Handler.ServeHTTP(resp, req)
-	if resp.Body.String() == "" {
-		t.Errorf("Test Failed")
+	if resp.Result().StatusCode != 200 {
+		t.Errorf("Test Failed with status:%d", resp.Result().StatusCode)
 	}
+	response := model.TokenResponsejson{}
+	json.NewDecoder(resp.Body).Decode(&response)
+	if response.Type != "success" {
+		t.Errorf("Test Failed with Type:%s and message:%s", response.Type, response.Mesage)
 
+	}
+	Newuserr := model.ResetPasswordform{Email: "shamthagos@gmail.com", Token: response.Token, NewPassword: "Hello123", ConfirmNewPassword: "Hello123"}
+	buffr := convtobuff(Newuserr)
+	reqr := httptest.NewRequest(http.MethodPost, "/passwordresetwithtoken", &buffr)
+	respr := httptest.NewRecorder()
+	server.Handler.ServeHTTP(respr, reqr)
+	if respr.Result().StatusCode != 200 {
+		t.Errorf("Test Failed with statuscode:%d", respr.Result().StatusCode)
+	}
 }
 
-func convtobuff(user model.UserInfo) bytes.Buffer {
+func convtobuff(user interface{}) bytes.Buffer {
 	body, err := json.Marshal(user)
 	if err != nil {
 		panic(err)
