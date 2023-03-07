@@ -39,6 +39,12 @@ func GetAllUSerHandlermiddleware(next http.Handler) http.Handler {
 		}
 	})
 }
+func ResetpasswordRequestMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
 func ResetpasswordMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
