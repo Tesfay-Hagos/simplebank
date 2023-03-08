@@ -24,25 +24,17 @@ func Register(user UserInfo) JsonResponse {
 	return response
 
 }
-func GetUser(email string) (UserInfo, bool) {
+func GetUser(email string) UserInfo {
 	//needs to be replaces using Database
 	db := setupDB()
 	PrintMessage("Getting Users...")
 	// Get all users from users table that don't have userID = "1"
-	rows, err := db.Query("SELECT * FROM registeredusers")
-	// check errors
+	row := db.QueryRow("SELECT * FROM registeredusers where email=$1", email)
+	user := UserInfo{}
+	var id int
+	err := row.Scan(&id, &user.Username, &user.Password, &user.Email, &user.CreatedAt)
 	CheckErr(err)
-	// Foreach user
-	for rows.Next() {
-		user := UserInfo{}
-		var id int
-		err = rows.Scan(&id, &user.Username, &user.Password, &user.Email, &user.CreatedAt)
-		if email == user.Email {
-			CheckErr(err)
-			return user, true
-		}
-	}
-	return UserInfo{}, false
+	return user
 }
 func ChngePassword(email, pass string) string {
 	db := setupDB()
@@ -56,7 +48,6 @@ func ChngePassword(email, pass string) string {
 	return "userpassword updated"
 }
 func GetAllUser() JsonResponse {
-	//needs to be replaces using Database
 	db := setupDB()
 	PrintMessage("Getting Users...")
 	users := []UserInfo{}

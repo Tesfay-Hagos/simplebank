@@ -25,23 +25,21 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "invalid body")
 		return
 	}
-	dbuser, isuser := model.GetUser(user.Email)
-	if isuser {
-		equal := bcrypt.CompareHashAndPassword([]byte(dbuser.Password), []byte(user.Password))
-		if equal != nil {
+	dbuser := model.GetUser(user.Email)
+	equal := bcrypt.CompareHashAndPassword([]byte(dbuser.Password), []byte(user.Password))
+	if equal != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "can not authenticate this user")
+		return
+	} else {
+		token, err := GenerateJWT(user.Username)
+		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintf(w, "can not authenticate this user")
-			return
-		} else {
-			token, err := GenerateJWT(user.Username)
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				fmt.Fprintf(w, "error in generating token")
+			fmt.Fprintf(w, "error in generating token")
 
-			}
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprint(w, token)
 		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, token)
 	}
 }
 
@@ -70,11 +68,11 @@ func ResetPassRequestNew(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Please insert both Email to reset password")
 	}
-	userdb, isfound := model.GetUser(user.Email)
-	if isfound && userdb.Email == user.Email {
+	userdb := model.GetUser(user.Email)
+	if userdb.Email == user.Email {
 		secritcode := Totp.Get()
 		//model.SendEmail("tesfay.hagos1421@gmail.com", "TsadkanBerut2121@Adigrat", user.Email, "RESET PASSWORD TOKEN", fmt.Sprintf("This is your Reset Password token:%s", secritcode))
-		json.NewEncoder(w).Encode(fmt.Sprintf("the reset code is:%s", secritcode))
+		json.NewEncoder(w).Encode(fmt.Sprint(secritcode))
 
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
@@ -89,13 +87,14 @@ func OtpResetpass(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Please insert token,newpassword and confirmnewpasssword")
 	}
 	pass := Totp.Verify(data.Token)
+	fmt.Printf("OtpCode Received:%s", data.Token)
 	if !pass {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "This token is already out of date no tokens found")
+		fmt.Fprintf(w, "This token is already out of date")
 	} else {
 		model.ChngePassword(data.Email, data.NewPassword)
-		w.WriteHeader(200)
-		fmt.Fprintf(w, "Passwor Updated Successfully")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "Password Updated Successfully")
 	}
 
 }

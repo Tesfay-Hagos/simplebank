@@ -34,42 +34,49 @@ func GenerateJWT(username string) (string, error) {
 	}
 	return tokenString, nil
 }
-
-func ValidateToken(w http.ResponseWriter, r *http.Request) (err error, b bool) {
+func ValidateToken(w http.ResponseWriter, r *http.Request) error {
 	var sampleSecretKey = []byte(os.Getenv("sampleSecretKey"))
-	b = true
 	if r.Header["Token"] == nil {
 		fmt.Fprintf(w, "can not find token in header")
-		b = false
-		return
+		return fmt.Errorf("token is nil")
 	}
-	token, _ := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("there was an error in parsing")
 		}
 		return sampleSecretKey, nil
 	})
 
-	if token == nil {
+	if err != nil {
 		fmt.Fprintf(w, "invalid token")
-	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if claims == nil {
-		fmt.Fprintf(w, "Error the token is nil")
-	}
-	if !ok {
-		fmt.Fprintf(w, "couldn't parse claims")
-		return errors.New("token error"), b
+		return err
 	}
 
-	exp := claims["exp"].(float64)
+	if token == nil || !token.Valid {
+		fmt.Fprintf(w, "invalid token")
+		return errors.New("token error")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || claims == nil {
+		fmt.Fprintf(w, "invalid token claims")
+		return errors.New("token error")
+	}
+
+	exp, ok := claims["exp"].(float64)
+	if !ok {
+		fmt.Fprintf(w, "invalid token claims")
+		return errors.New("token error")
+	}
+
 	if int64(exp) < time.Now().Local().Unix() {
 		fmt.Fprintf(w, "token expired")
-		return errors.New("token error"), b
+		return errors.New("token error")
 	}
 
-	return nil, b
+	return nil
 }
+
 func GenerateResetToken(n int) string {
 	//var letterBytes = []byte(os.Getenv("letterBytes"))
 	b := make([]byte, n)

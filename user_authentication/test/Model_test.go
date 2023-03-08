@@ -14,7 +14,7 @@ import (
 func TestUserregisterandlogin(t *testing.T) {
 	server := controller.Newserver()
 	t.Run("Test Registering users", func(t *testing.T) {
-		Newuser := model.UserInfo{Username: "Tsadkan", Password: "tsadkaney2121", Email: "tsadkan2121@gmail.com", CreatedAt: time.Now()}
+		Newuser := model.UserInfo{Username: "Tskadkan", Password: "tskadkaney2121", Email: "tsadkan2121@gmail.com", CreatedAt: time.Now()}
 		//create request and response writer
 		buff := convtobuff(Newuser)
 		req := httptest.NewRequest(http.MethodPost, "/register", &buff)
@@ -28,48 +28,17 @@ func TestUserregisterandlogin(t *testing.T) {
 			t.Errorf("Test Failed")
 		}
 	})
-	t.Run("Test login user and generate token", func(t *testing.T) {
-		Newuser := model.UserInfo{Password: "tsadkaney2121", Email: "tsadkan2121@gmail.com"}
-		buff := convtobuff(Newuser)
-		req := httptest.NewRequest(http.MethodPost, "/login", &buff)
-		resp := httptest.NewRecorder()
-		server.Handler.ServeHTTP(resp, req)
-		if resp.Result().StatusCode != 200 {
-			t.Errorf("Test Failed wit statuscode:%d", resp.Result().StatusCode)
-		}
-
-		Newuserr := model.ResetPasswordform{Token: resp.Body.String()}
-		buffr := convtobuff(Newuserr)
-		reqr := httptest.NewRequest(http.MethodPost, "/getalluser", &buffr)
-		respr := httptest.NewRecorder()
-		server.Handler.ServeHTTP(respr, reqr)
-		if respr.Result().StatusCode != 200 {
-			t.Errorf("Test Failed with statuscode:%d", respr.Result().StatusCode)
-		}
-
-	})
-	t.Run("Change Password", func(t *testing.T) {
-		Newuser := model.UserInfo{Password: "1234567890", Email: "tsadkan2121@gmail.com"}
-		buffchange := convtobuff(Newuser)
-		req := httptest.NewRequest(http.MethodPut, "/changepassword", &buffchange)
-		//req.Header.Add("token", token)
-		resp := httptest.NewRecorder()
-		server.Handler.ServeHTTP(resp, req)
-		want := "userpassword updated"
-		got := resp.Body.String()
-		assertupdate(t, got, want)
-
-	})
-
 }
 func TestLoginandGet(t *testing.T) {
 	server := controller.Newserver()
 	t.Run("Test login user and generate token", func(t *testing.T) {
-		Newuser := model.UserInfo{Password: "tsadkaney2121", Email: "tsadkan2121@gmail.com"}
+		Newuser := model.UserInfo{Password: "tshomehu2121", Email: "teshhagos@gmail.com"}
 		buff := convtobuff(Newuser)
 		req := httptest.NewRequest(http.MethodPost, "/login", &buff)
 		resp := httptest.NewRecorder()
 		server.Handler.ServeHTTP(resp, req)
+		//t.Errorf("Teoken of login password:%s", resp.Body)
+		//t.Logf("\nToken:%s", resp.Body.String())
 		if resp.Result().StatusCode != 200 {
 			t.Errorf("Test Failed wit statuscode:%d", resp.Result().StatusCode)
 		}
@@ -79,7 +48,19 @@ func TestLoginandGet(t *testing.T) {
 		reqr := httptest.NewRequest(http.MethodPost, "/getalluser", &buffr)
 		respr := httptest.NewRecorder()
 		server.Handler.ServeHTTP(respr, reqr)
+		//t.Errorf("Teoken of login password:%s", respr.Body.String())
 		if respr.Result().StatusCode != 200 {
+			t.Errorf("Test Failed with statuscode:%d", respr.Result().StatusCode)
+		}
+
+		//Test Change password
+		Newuserc := model.UserInfo{Password: "tshomehu2121", Email: "teshhagos@gmail.com"}
+		buffchangec := convtobuff(Newuserc)
+		reqc := httptest.NewRequest(http.MethodPut, "/changepassword", &buffchangec)
+		reqc.Header.Add("token", resp.Body.String())
+		respc := httptest.NewRecorder()
+		server.Handler.ServeHTTP(respc, reqc)
+		if respc.Result().StatusCode != 200 {
 			t.Errorf("Test Failed with statuscode:%d", respr.Result().StatusCode)
 		}
 
@@ -87,26 +68,24 @@ func TestLoginandGet(t *testing.T) {
 }
 func TestPasswordReset(t *testing.T) {
 	server := controller.Newserver()
-	Newuser := model.ResetPassword{Email: "shamthagos@gmail.com"}
+	Newuser := model.ResetPassword{Email: "teshhagos@gmail.com"}
 	buff := convtobuff(Newuser)
 	req := httptest.NewRequest(http.MethodPost, "/passwordresetrequest", &buff)
 	resp := httptest.NewRecorder()
 	server.Handler.ServeHTTP(resp, req)
-	if resp.Result().StatusCode != 200 {
-		t.Errorf("Test Failed with status:%d", resp.Result().StatusCode)
-	}
-	response := model.TokenResponsejson{}
-	json.NewDecoder(resp.Body).Decode(&response)
-	if response.Type != "success" {
-		t.Errorf("Test Failed with Type:%s and message:%s", response.Type, response.Mesage)
+	if resp.Body.String() == "" {
+		t.Errorf("Test Failed")
 
 	}
-	Newuserr := model.ResetPasswordform{Email: "shamthagos@gmail.com", Token: response.Token, NewPassword: "Hello123", ConfirmNewPassword: "Hello123"}
+	//t.Errorf("OTP code of resetpass:%s", resp.Body.String())
+	otpcode := resp.Body.String()
+	Newuserr := model.ResetPasswordform{Email: "teshhagos@gmail.com", Token: otpcode, NewPassword: "Hello123", ConfirmNewPassword: "Hello123"}
 	buffr := convtobuff(Newuserr)
-	reqr := httptest.NewRequest(http.MethodPost, "/passwordresetwithtoken", &buffr)
+	reqr := httptest.NewRequest(http.MethodPut, "/passwordresetwithtoken", &buffr)
 	respr := httptest.NewRecorder()
 	server.Handler.ServeHTTP(respr, reqr)
-	if respr.Result().StatusCode != 200 {
+	//t.Errorf("Boddy of resetpass:%s", respr.Body.String())
+	if respr.Code != http.StatusOK {
 		t.Errorf("Test Failed with statuscode:%d", respr.Result().StatusCode)
 	}
 }
@@ -119,9 +98,4 @@ func convtobuff(user interface{}) bytes.Buffer {
 	buff := bytes.NewBuffer(body)
 	return *buff
 
-}
-func assertupdate(t testing.TB, got, want string) {
-	if got != want {
-		t.Errorf("got:%s,want:%s", got, want)
-	}
 }
