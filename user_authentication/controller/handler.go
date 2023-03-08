@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var Totp = OtpGenerator()
+var Totp = *OtpGenerator()
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	user := model.UserInfo{}
@@ -88,7 +88,7 @@ func OtpResetpass(w http.ResponseWriter, r *http.Request) {
 	}
 	pass := Totp.Verify(data.Token)
 	fmt.Printf("OtpCode Received:%s", data.Token)
-	if !pass {
+	if pass {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "This token is already out of date")
 	} else {

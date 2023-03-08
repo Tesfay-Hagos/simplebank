@@ -79,7 +79,7 @@ func TestPasswordReset(t *testing.T) {
 	}
 	//t.Errorf("OTP code of resetpass:%s", resp.Body.String())
 	otpcode := resp.Body.String()
-	Newuserr := model.ResetPasswordform{Email: "teshhagos@gmail.com", Token: otpcode, NewPassword: "Hello123", ConfirmNewPassword: "Hello123"}
+	Newuserr := model.ResetPasswordform{Email: "shamthagos@gmail.com", Token: otpcode, NewPassword: "Hello123", ConfirmNewPassword: "Hello123"}
 	buffr := convtobuff(Newuserr)
 	reqr := httptest.NewRequest(http.MethodPut, "/passwordresetwithtoken", &buffr)
 	respr := httptest.NewRecorder()
