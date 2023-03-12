@@ -12,5 +12,8 @@ backtov1:
 	smigrate -path db/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' force 1
 sqlc:
 	sqlc generate
-
-.PHONY: createdb dropdb migrateup migratedown sqlc
+getpid:
+	sudo lsof -i :5432
+test:
+	go test -v -cover ./...
+.PHONY: createdb dropdb migrateup migratedown getpid sqlc test
