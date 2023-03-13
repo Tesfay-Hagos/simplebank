@@ -15,14 +15,16 @@ const (
 )
 
 var testQueries *Queries
+var testdb *sql.DB
 
 func TestMain(m *testing.M) {
-	testDB, err := sql.Open(DBDriver, DBSource)
+	var err error
+	testdb, err = sql.Open(DBDriver, DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}
 
-	testQueries = New(testDB)
+	testQueries = New(testdb)
 
 	os.Exit(m.Run())
 }
