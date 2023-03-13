@@ -1,7 +1,7 @@
 package assignment01_test
 
 import (
-	"assignment/assignment_01/company"
+	"tesfayprep/assignment_01/company"
 	"testing"
 )
 

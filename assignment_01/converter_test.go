@@ -1,7 +1,7 @@
 package assignment01_test
 
 import (
-	"assignment/assignment_01/converter"
+	"tesfayprep/assignment_01/converter"
 	"testing"
 )
 
