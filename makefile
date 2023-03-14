@@ -15,7 +15,7 @@ sqlc:
 getpid:
 	sudo lsof -i :5432
 test:
-	go test -v -cover ./...
+	go test -v -cover /simplebank
 startdocker:
 	sudo docker start postgres12
 .PHONY: createdb dropdb migrateup migratedown getpid sqlc test startdocker
