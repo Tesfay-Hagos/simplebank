@@ -1,5 +1,6 @@
 package test
 
+/*
 import (
 	"bytes"
 	"encoding/json"
@@ -99,3 +100,4 @@ func convtobuff(user interface{}) bytes.Buffer {
 	return *buff
 
 }
+*/

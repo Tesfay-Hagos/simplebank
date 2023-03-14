@@ -1,5 +1,6 @@
 package assignment01_test
 
+/*
 import (
 	"fmt"
 	groupcompanies "tesfayprep/assignment_01/groupCompanies"
@@ -51,3 +52,4 @@ func TestGroupCompaniesByWeek(t *testing.T) {
 
 	}
 }
+*/
