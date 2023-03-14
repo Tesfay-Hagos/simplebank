@@ -4,6 +4,7 @@
 name: ci-test
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
   pull_request:
@@ -29,4 +30,4 @@ jobs:
     - name: Test
       run: make test
 
-//commit
+//branch checkout
