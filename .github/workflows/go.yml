@@ -25,4 +25,4 @@ jobs:
       run: go build -v ./...
 
     - name: Test
-      run: ./simplebank/maketest
+      run: /simplebank/maketest
