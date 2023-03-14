@@ -5,11 +5,11 @@ createdb:
 dropdb:
 	sudo docker exec -it postgres12 dropdb --username=tesfay2f simple_bank
 migrateup:
-	migrate -path db/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' -verbose up
+	migrate -path simplebank/db/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' -verbose up
 migratedown:
-	migrate -path db/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' -verbose down
+	migrate -path simplebankdb/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' -verbose down
 backtov1:
-	smigrate -path db/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' force 1
+	smigrate -path simplebankdb/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' force 1
 sqlc:
 	sqlc generate
 getpid:
