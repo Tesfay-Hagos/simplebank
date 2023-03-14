@@ -13,9 +13,22 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+  services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: tesfay2f
+          POSTGRES_PASSWORD: tsionawi@2121
+          POSTGRES_DB: simple_bank
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
     - uses: actions/checkout@v3
-
+    - name: Run migrations
+      run: make migrateup
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
@@ -26,3 +39,4 @@ jobs:
 
     - name: Test
       run: make test
+   
