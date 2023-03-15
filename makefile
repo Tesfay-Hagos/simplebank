@@ -18,4 +18,7 @@ test:
 	go test -v ./...
 startdocker:
 	sudo docker start postgres12
-.PHONY: createdb dropdb migrateup migratedown getpid sqlc test startdocker
+server:
+	go run main.go
+
+.PHONY: createdb dropdb migrateup migratedown getpid sqlc test startdocker server
