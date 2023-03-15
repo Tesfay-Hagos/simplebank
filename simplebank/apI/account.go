@@ -61,6 +61,7 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		return
 	}
 
+	//account := db.Account{}
 	ctx.JSON(http.StatusOK, account)
 }
 

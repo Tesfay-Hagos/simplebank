@@ -20,5 +20,7 @@ startdocker:
 	sudo docker start postgres12
 server:
 	go run main.go
+mock:
+	mockgen -package mockdb -destination simplebank/db/mock/store.go tesfayprep/simplebank/db/sqlc Store
 
-.PHONY: createdb dropdb migrateup migratedown getpid sqlc test startdocker server
+.PHONY: createdb dropdb migrateup migratedown getpid sqlc test startdocker server mockgen
