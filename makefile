@@ -6,10 +6,14 @@ dropdb:
 	sudo docker exec -it postgres12 dropdb --username=tesfay2f simple_bank
 migrateup:
 	migrate -path simplebank/db/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' -verbose up
+migrateup1:
+	migrate -path simplebank/db/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' -verbose up 1
 migratedown:
-	migrate -path simplebankdb/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' -verbose down
+	migrate -path simplebank/db/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' -verbose down
+migratedown1:
+	migrate -path simplebank/db/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' -verbose down 1
 backtov1:
-	smigrate -path simplebankdb/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' force 1
+	migrate -path simplebank/db/migrations -database 'postgresql://tesfay2f:tsionawi@2121@localhost:5432/simple_bank?sslmode=disable' force 1
 sqlc:
 	sqlc generate
 getpid:
@@ -23,4 +27,4 @@ server:
 mock:
 	mockgen -package mockdb -destination simplebank/db/mock/store.go tesfayprep/simplebank/db/sqlc Store
 
-.PHONY: createdb dropdb migrateup migratedown getpid sqlc test startdocker server mockgen
+.PHONY: createdb dropdb migrateup migratedown getpid sqlc test startdocker server mockgen migrateup1 migratedown1
