@@ -78,19 +78,22 @@ func TestDelateAccount(t *testing.T) {
 }
 
 func TestListAccounts(t *testing.T) {
+	var lastacount Account
 	for k := 0; k < 10; k++ {
-		createRandomAccount(t)
+		lastacount = createRandomAccount(t)
 	}
 
 	arg := ListAccountsParams{
+		Owner:  lastacount.Owner,
 		Limit:  5,
-		Offset: 5,
+		Offset: 0,
 	}
 
 	accounts, err := testQueries.ListAccounts(context.Background(), arg)
 	require.NoError(t, err)
-	require.Len(t, accounts, 5)
+	require.NotEmpty(t, accounts)
 	for _, account := range accounts {
 		require.NotEmpty(t, account)
+		require.Equal(t, lastacount.Owner, account.Owner)
 	}
 }

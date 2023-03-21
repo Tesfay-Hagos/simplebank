@@ -4,10 +4,12 @@ import (
 	"net/http"
 	db "tesfayprep/simplebank/db/sqlc"
 	"tesfayprep/simplebank/util"
+	"testing"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
+	"github.com/stretchr/testify/require"
 )
 
 type createUserRequest struct {
@@ -16,7 +18,7 @@ type createUserRequest struct {
 	FullName string `json:"full_name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 }
-type userResponse struct {
+type UserResponse struct {
 	Username          string    `json:"username"`
 	FullName          string    `json:"full_name"`
 	Email             string    `json:"email"`
@@ -68,15 +70,29 @@ type loginUserRequest struct {
 
 type loginUserResponse struct {
 	AccessToken string       `json:"access_token"`
-	User        userResponse `json:"user"`
+	User        UserResponse `json:"user"`
 }
 
-func newUserResponse(user db.User) userResponse {
-	return userResponse{
+func newUserResponse(user db.User) UserResponse {
+	return UserResponse{
 		Username:          user.Username,
 		FullName:          user.FullName,
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
 	}
+}
+
+func randomUser(t *testing.T) (user db.User, password string) {
+	password = util.RandomString(6)
+	hashedPassword, err := util.HashedPassword(password)
+	require.NoError(t, err)
+
+	user = db.User{
+		Username:       util.RandomOwner(),
+		HashedPassword: hashedPassword,
+		FullName:       util.RandomOwner(),
+		Email:          util.RandomEmail(),
+	}
+	return
 }

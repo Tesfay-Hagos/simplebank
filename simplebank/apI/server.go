@@ -43,10 +43,16 @@ func (server *Server) setuproute() {
 	router := gin.Default()
 	router.POST("/users", server.createUser)
 	router.POST("/users/login", server.loginUser)
-	router.POST("/accounts", server.createAccount)
-	router.GET("/accounts/:id", server.getAccount)
-	router.GET("/accounts", server.listAccount)
-	router.POST("/transfers", server.createTransfer)
+
+	authroute := router.Group("/")
+	authroute.Use(authMiddleware(server.tokenMaker))
+	{
+		authroute.POST("/accounts", server.createAccount)
+		authroute.GET("/accounts/:id", server.getAccount)
+		authroute.GET("/accounts", server.listAccount)
+		authroute.POST("/transfers", server.createTransfer)
+	}
+
 	server.router = router
 }
 
